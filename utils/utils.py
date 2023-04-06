@@ -88,6 +88,7 @@ def grid_sampler(img, coords, mode='bilinear'):
     return img
 
 def flow_dt(a, ha, gt, hgt, flow, trimask, metric=False, cuda=True):
+        cuda = False
         '''
         All tensors in [B, C, H, W]
         a: current prediction

@@ -77,7 +77,7 @@ def main(cfg, args, GPU):
     load_ckpt = os.path.join('weights', '{:s}.pth'.format(MODEL))
     dct = torch.load(load_ckpt, map_location=torch.device('cpu'))
     model.load_state_dict(dct)
-    model = nn.DataParallel(model.cuda())
+    # model = nn.DataParallel(model.cuda())
 
 
     if args.demo:
@@ -121,7 +121,7 @@ def eval(args, cfg, valid_dataset, model, alpha_outdir, viz_outdir_img, viz_outd
         if cfg.SYSTEM.TESTMODE:
             if i_iter not in [0, len(valid_dataset)-1]:
                 continue
-        torch.cuda.empty_cache()
+        # torch.cuda.empty_cache()
         num_frames = 1
         eval_sequence = EvalDataset(
             data_name=data_name,
@@ -192,9 +192,9 @@ def eval(args, cfg, valid_dataset, model, alpha_outdir, viz_outdir_img, viz_outd
             if first_frame:
                 print('[{}/{}] {} | {} | Large input: {}'.format(i_iter, len(valid_dataset), seq_name, dp[0].shape[-2:], large_input))
                 
-            torch.cuda.synchronize()
+            # torch.cuda.synchronize()
             out, filename = handle_batch(dp, first_frame, last_frame, memorize, max_memory_num, large_input,)
-            torch.cuda.synchronize()
+            # torch.cuda.synchronize()
 
             scaled_imgs, tri_pred, tri_gt, alphas, scaled_gts = out
 
@@ -225,7 +225,7 @@ def eval(args, cfg, valid_dataset, model, alpha_outdir, viz_outdir_img, viz_outd
                                 i_seq)
 
 
-            torch.cuda.synchronize()
+            # torch.cuda.synchronize()
         
         if VIZ:
             if '/' in seq_name:

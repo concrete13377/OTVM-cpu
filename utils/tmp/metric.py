@@ -104,11 +104,13 @@ class BatchMetric(object):
         ky = self.hy[::-1, ::-1].copy()
         kernel_x = torch.from_numpy(kx).unsqueeze(0).unsqueeze(0)
         kernel_y = torch.from_numpy(ky).unsqueeze(0).unsqueeze(0)
-        self.fx = ImageFilter(1, self.kernel_size, kernel_x, self.device).cuda(self.device)
-        self.fy = ImageFilter(1, self.kernel_size, kernel_y, self.device).cuda(self.device)
+        # self.fx = ImageFilter(1, self.kernel_size, kernel_x, self.device).cuda(self.device)
+        # self.fy = ImageFilter(1, self.kernel_size, kernel_y, self.device).cuda(self.device)
+        self.fx = ImageFilter(1, self.kernel_size, kernel_x, self.device)
+        self.fy = ImageFilter(1, self.kernel_size, kernel_y, self.device)
 
     def run(self, input, target, mask=None):
-        torch.cuda.empty_cache()
+        # torch.cuda.empty_cache()
         input_t = torch.from_numpy(input.astype(np.float32)).to(self.device)
         target_t = torch.from_numpy(target.astype(np.float32)).to(self.device)
         if mask is None:
@@ -124,7 +126,7 @@ class BatchMetric(object):
         return sad, mse, grad, conn
 
     def run_video(self, input, target, mask=None):
-        torch.cuda.empty_cache()
+        # torch.cuda.empty_cache()
         input_t = torch.from_numpy(input.astype(np.float32)).to(self.device)
         target_t = torch.from_numpy(target.astype(np.float32)).to(self.device)
         if mask is None:
@@ -146,7 +148,7 @@ class BatchMetric(object):
         return errs, nums
 
     def run_metric(self, metric, input, target, mask=None):
-        torch.cuda.empty_cache()
+        # torch.cuda.empty_cache()
         input_t = torch.from_numpy(input.astype(np.float32)).to(self.device)
         target_t = torch.from_numpy(target.astype(np.float32)).to(self.device)
         if mask is None:

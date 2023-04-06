@@ -75,7 +75,9 @@ class FullModel(nn.Module):
     def _forward(self, imgs, tris, alpha, masks=None, og_shape=None):
         if self.stage == 1:
             batch_size, sample_length = imgs.shape[:2]
-            num_object = torch.tensor([self.num_object]).to(torch.cuda.current_device())
+            # num_object = torch.tensor([self.num_object]).to(torch.cuda.current_device())
+            num_object = torch.tensor([self.num_object])
+
             GT = tris.split(1, dim=0)                               # [1, S, C, H, W]
             FG = imgs.split(1, dim=0)                               # [1, S, C, H, W]
             
@@ -131,7 +133,8 @@ class FullModel(nn.Module):
             return pred, loss
 
     def _forward_single_step(self, img_q, img, tri, alpha, hid, memories=None):
-        num_object = torch.tensor([self.num_object]).to(torch.cuda.current_device())
+        # num_object = torch.tensor([self.num_object]).to(torch.cuda.current_device())
+        num_object = torch.tensor([self.num_object])
         # we split batch here since the original code only supports b=1
         if self.hdim > 0:
             Es = torch.cat([tri, alpha, hid], dim=1)
@@ -173,7 +176,8 @@ class FullModel(nn.Module):
 class FullModel_eval(FullModel):
     def _forward(self, imgs, tris, first_frame=False, masks=None, og_shape=None, save_memory=False, max_memory_num=2, memorize_gt=False):
         if self.stage == 1:
-            num_object = torch.tensor([self.num_object]).to(torch.cuda.current_device())
+            # num_object = torch.tensor([self.num_object]).to(torch.cuda.current_device())
+            num_object = torch.tensor([self.num_object])
 
             Fs = imgs
             
@@ -225,7 +229,8 @@ class FullModel_eval(FullModel):
             return pred.unsqueeze(1), 0
 
     def _forward_memorize(self, img, tri, alpha, hid):
-        num_object = torch.tensor([self.num_object]).to(torch.cuda.current_device())
+        # num_object = torch.tensor([self.num_object]).to(torch.cuda.current_device())
+        num_object = torch.tensor([self.num_object])
         # we split batch here since the original code only supports b=1
         if self.hdim > 0:
             Es = torch.cat([tri, alpha, hid], dim=1)
@@ -239,7 +244,8 @@ class FullModel_eval(FullModel):
         return memories
 
     def _forward_segment(self, img_q, memories=None, memory_update=False):
-        num_object = torch.tensor([self.num_object]).to(torch.cuda.current_device())
+        # num_object = torch.tensor([self.num_object]).to(torch.cuda.current_device())
+        num_object = torch.tensor([self.num_object])
         # segment
         logit = self.model(img_q, memories['key'], memories['val'], num_object)
         return logit

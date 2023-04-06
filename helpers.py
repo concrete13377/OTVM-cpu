@@ -13,13 +13,14 @@ from importlib import reload
 import sys
 
 def ToCuda(xs):
-    if torch.cuda.is_available():
-        if isinstance(xs, list) or isinstance(xs, tuple):
-            return [x.cuda() for x in xs]
-        else:
-            return xs.cuda() 
-    else:
-        return xs
+    # if torch.cuda.is_available():
+    #     if isinstance(xs, list) or isinstance(xs, tuple):
+    #         return [x.cuda() for x in xs]
+    #     else:
+    #         return xs.cuda() 
+    # else:
+    #     return xs
+    return xs
 
 
 def pad_divide_by(in_list, d, in_size):

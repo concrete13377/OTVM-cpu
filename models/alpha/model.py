@@ -293,7 +293,8 @@ class FullModel(nn.Module):
                 GT_TRIMAP = torch.argmax(tri, dim=2).view(-1, H, W)
                 loss_trimap = loss_trimap + self.LOSS_TRIMAP(logit_trimap_refine.view(-1, 3, H, W), GT_TRIMAP)
         else:
-            loss_trimap = torch.zeros([1]).to(torch.cuda.current_device())
+            # loss_trimap = torch.zeros([1]).to(torch.cuda.current_device())
+            loss_trimap = torch.zeros([1])
 
 
 
@@ -444,8 +445,8 @@ class EvalModel(FullModel):
         
         inputs = torch.cat([imgs_, scaled_tris_], dim=1)
         extras = [scaled_imgs_, scaled_tris_[:, -2:]]
-        if large_input:
-            torch.cuda.empty_cache()
+        # if large_input:
+            # torch.cuda.empty_cache()
         preds_alpha, hid, preds_alpha_refine, _logit_trimap_refine = self.NET(inputs, extras=extras)
 
         if self.refinement:
