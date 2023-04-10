@@ -16,6 +16,10 @@ from helpers import *
 
 torch.set_grad_enabled(False)
 
+import sys
+sys.path.append('/home/whst2/Workdir/vcs/OTVM')
+
+
 EPS = 0
 
 def parse_args():
@@ -25,6 +29,10 @@ def parse_args():
     parser.add_argument('--trimap', default='medium', choices=['narrow', 'medium', 'wide'])
     parser.add_argument("--viz", action='store_true')
     parser.add_argument("--demo", action='store_true')
+    parser.add_argument("--indir", type=str)
+    parser.add_argument("--outdir", type=str)
+
+    
 
     args = parser.parse_args()
 
@@ -32,8 +40,8 @@ def parse_args():
     cfg.TRAIN.STAGE = 4
 
     if args.demo:
-        cfg.SYSTEM.OUTDIR = './demo_results'
-        cfg.DATASET.PATH = './demo'
+        cfg.SYSTEM.OUTDIR = args.outdir
+        cfg.DATASET.PATH = args.indir
 
     return args, cfg
 
@@ -74,7 +82,7 @@ def main(cfg, args, GPU):
     model_trimap = get_model_trimap(cfg, mode='Test', dilate_kernel=dilate_kernel)
     model = get_model_alpha(cfg, model_trimap, mode='Test', dilate_kernel=dilate_kernel)
     
-    load_ckpt = os.path.join('weights', '{:s}.pth'.format(MODEL))
+    load_ckpt = os.path.join('/home/whst2/Workdir/vcs/weights', '{:s}.pth'.format(MODEL))
     dct = torch.load(load_ckpt, map_location=torch.device('cpu'))
     model.load_state_dict(dct)
     model = nn.DataParallel(model.cuda())
