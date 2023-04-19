@@ -31,6 +31,7 @@ def parse_args():
     parser.add_argument("--demo", action='store_true')
     parser.add_argument("--indir", type=str)
     parser.add_argument("--outdir", type=str)
+    parser.add_argument("--generated_trimap_dir", type=str)
 
     
 
@@ -47,13 +48,12 @@ def parse_args():
 
 
 def main(cfg, args, GPU):
-    os.environ['CUDA_VISIBLE_DEVICES'] = GPU
     if torch.cuda.is_available():
         print('using Cuda devices, num:', torch.cuda.device_count())
 
     MODEL = get_model_name(cfg)
     random_seed = cfg.SYSTEM.RANDOM_SEED
-    output_dir = os.path.join(cfg.SYSTEM.OUTDIR, 'alpha')
+    output_dir = os.path.join(cfg.SYSTEM.OUTDIR)
     start = timeit.default_timer()
     cudnn.benchmark = False
     cudnn.deterministic = cfg.SYSTEM.CUDNN_DETERMINISTIC
@@ -68,9 +68,10 @@ def main(cfg, args, GPU):
         outdir_tail = MODEL
     else:
         outdir_tail = os.path.join(args.trimap, MODEL)
-    alpha_outdir = os.path.join(output_dir, 'test', outdir_tail)
+    alpha_outdir = os.path.join(output_dir)
     viz_outdir_img = os.path.join(output_dir, 'viz', 'img', outdir_tail)
     viz_outdir_vid = os.path.join(output_dir, 'viz', 'vid', outdir_tail)
+    generated_trimap_dir = args.generated_trimap_dir
 
     if args.trimap == 'narrow':
         dilate_kernel = 5   # width: 11
@@ -96,7 +97,7 @@ def main(cfg, args, GPU):
             mode='val',
         )
     with torch.no_grad():
-        eval(args, cfg, valid_dataset, model, alpha_outdir, viz_outdir_img, viz_outdir_vid, args.viz)
+        eval(args, cfg, valid_dataset, model, alpha_outdir, generated_trimap_dir, viz_outdir_img, viz_outdir_vid, args.viz)
     
     end = timeit.default_timer()
     print('done | Total time: {}'.format(format_time(end-start)))
@@ -122,7 +123,7 @@ def write_image(outdir, out, filename, max_batch=4):
         
         save_image(imgs, outdir%(filename), nrow=int(s*b*2))
 
-def eval(args, cfg, valid_dataset, model, alpha_outdir, viz_outdir_img, viz_outdir_vid, VIZ):
+def eval(args, cfg, valid_dataset, model, alpha_outdir, generated_trimap_dir, viz_outdir_img, viz_outdir_vid, VIZ):
     model.eval()
 
     for i_iter, (data_name, data_root, FG, BG, a, tri, seq_name) in enumerate(valid_dataset):
@@ -153,7 +154,7 @@ def eval(args, cfg, valid_dataset, model, alpha_outdir, viz_outdir_img, viz_outd
 
         print('[{}/{}] Set FIXED dilate of unknown region: [{}]'.format(i_iter, len(valid_dataset), args.trimap))
 
-        save_path = os.path.join(alpha_outdir, 'pred', seq_name)
+        save_path = os.path.join(alpha_outdir)
         os.makedirs(save_path, exist_ok=True)
         if VIZ:
             visualization_path_img = os.path.join(viz_outdir_img, 'viz', seq_name)
@@ -205,6 +206,10 @@ def eval(args, cfg, valid_dataset, model, alpha_outdir, viz_outdir_img, viz_outd
             torch.cuda.synchronize()
 
             scaled_imgs, tri_pred, tri_gt, alphas, scaled_gts = out
+
+            generated_trimap_dir = Path(generated_trimap_dir)
+            trimap_savepath = str(generated_trimap_dir / f'{i_seq}.png')
+            save_image(tri_pred.squeeze(0).squeeze(0), trimap_savepath)
 
             green_bg = torch.zeros_like(scaled_imgs)
             green_bg[:,:,1] = 1.
